@@ -322,15 +322,16 @@
                 // 检查Desmos是否已加载
                 if (typeof Desmos === 'undefined') {
                     console.warn('Desmos尚未加载，请稍后再试');
-                    alert('图形工具正在加载中，请稍后再试...');
+                    alert('📊 图形工具正在加载中...\n\n请等待3-5秒后再试，或刷新页面。');
                     desmosEl.style.display = 'none';
                     return;
                 }
                 try {
                     calculator = Desmos.GraphingCalculator(desmosEl, { expressions: true, settingsMenu: false });
+                    console.log('✅ Desmos图形计算器已初始化');
                 } catch (e) {
                     console.error('Desmos初始化错误:', e);
-                    alert('图形工具加载失败，请刷新页面重试');
+                    alert('❌ 图形工具加载失败\n\n请刷新页面重试，或检查网络连接。');
                 }
             }
         };
@@ -515,6 +516,36 @@
 
         // 初始化加载历史记录
         loadHistory();
+
+        // Desmos加载状态检测
+        let desmosLoadAttempts = 0;
+        const maxAttempts = 20; // 最多等待10秒
+
+        function checkDesmosLoaded() {
+            if (typeof Desmos !== 'undefined') {
+                console.log('✅ Desmos已成功加载，图形功能可用');
+                return true;
+            }
+            return false;
+        }
+
+        function waitForDesmos() {
+            if (checkDesmosLoaded()) {
+                return;
+            }
+            
+            desmosLoadAttempts++;
+            if (desmosLoadAttempts < maxAttempts) {
+                setTimeout(waitForDesmos, 500);
+            } else {
+                console.warn('⚠️ Desmos加载超时，请刷新页面或检查网络');
+            }
+        }
+
+        // 页面加载完成后开始检查
+        window.addEventListener('load', () => {
+            setTimeout(waitForDesmos, 100);
+        });
     </script>
 </body>
 </html>
